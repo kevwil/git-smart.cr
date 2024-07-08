@@ -1,0 +1,3 @@
+lib/stdio/
+lib/.shards.info
+*.code-workspace

@@ -1,0 +1,50 @@
+require "./spec_helper"
+
+# require "fileutils"
+
+describe "smart-merge with failures" do
+  # def local_dir;  WORKING_DIR + "/local";  end
+  local_dir = WORKING_DIR + "/local"
+
+  before :each do
+    %x[
+      cd #{WORKING_DIR}
+        mkdir local
+        cd local
+          git init
+          git config --local user.name 'Maxwell Smart'
+          git config --local user.email 'agent86@control.gov'
+          git config --local core.pager 'cat'
+          echo -e 'one\ntwo\nthree\nfour\n' > README
+          mkdir lib
+          echo '!p "pro hax"' > lib/codes.rb
+          git add .
+          git commit -m 'first'
+    ]
+  end
+
+  context "with conflicting changes on master and newbranch" do
+    before :each do
+      %x[
+        cd #{local_dir}
+          git checkout -b newbranch 2> /dev/null
+          echo 'one\nnewbranch changes\nfour\n' > README
+          git commit -am 'newbranch_commit'
+
+          git checkout master 2> /dev/null
+
+          echo 'one\nmaster changes\nfour\n' > README
+          git commit -am 'master_commit'
+      ]
+    end
+
+    it "should report the failure and give instructions to the user" do
+      out = run_command(local_dir, "smart-merge", "newbranch")
+      # local_dir.should have_git_status(:conflicted => ["README"])
+      out.should_not eq("All good")
+      out.should eq("Executing: git merge --no-ff newbranch")
+      out.should eq("CONFLICT (content): Merge conflict in README")
+      out.should eq("Automatic merge failed; fix conflicts and then commit the result.")
+    end
+  end
+end

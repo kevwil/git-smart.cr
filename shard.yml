@@ -1,0 +1,18 @@
+name: git-smart-cr
+version: 0.0.1
+
+authors:
+  - name <kevwil@gmail.com>
+
+description: |
+  Crystal version of git-smart ruby gem.
+
+dependencies:
+  stdio:
+    github: mosop/stdio
+
+# development_dependencies:
+#   webmock:
+#     github: manastech/webmock.cr
+
+license: MIT
